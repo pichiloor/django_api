@@ -25,7 +25,7 @@ class Event(models.Model):
         max_length=50, choices=TYPE_CHOICES, default="public")
     date = models.DateField()
     room = models.OneToOneField(Room, on_delete=models.CASCADE, default=1)
-    available_places = "100000"
+    available_places = "3"
 
     def __str__(self):
         return self.name + ' - ' + self.available_places
