@@ -104,20 +104,31 @@ def booking_list(request, format=None):
 @api_view(['GET', 'PUT', 'DELETE'])
 def booking_detail(request, id, format=None):
 
-    try:
-        booking = Booking.objects.get(pk=id)
-    except Booking.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
     if request.method == 'GET':
+        try:
+            booking = Booking.objects.get(pk=id)
+        except Booking.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = BookingSerializer(booking)
         return Response(serializer.data)
     elif request.method == 'PUT':
-        serializer = BookingSerializer(booking, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+        booking = BookingSerializer(data=request.data)
+        if booking.is_valid():
+            event = Event.objects.get(pk=booking.event)
+            if not Event.check_existent(event.id, event.customer):
+                # if event.available_places() > 0 and event.type == 'public':
+                if event.type == 'public':
+                    booking.save()
+                else:
+                    return JsonResponse({"Error": "No spaces available!"}, status=400)
+            else:
+                return JsonResponse({"Error": "Can not book twice!"}, status=400)
+            return Response(booking.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
+        try:
+            booking = Booking.objects.get(pk=id)
+        except Booking.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         booking.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
