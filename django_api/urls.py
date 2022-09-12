@@ -25,7 +25,8 @@ urlpatterns = [
     path('events/', views.event_list),
     path('events/<int:id>', views.event_detail),
     path('booking/', views.booking_list),
-    path('booking/<int:id>', views.booking_detail)
+    path('booking/<int:id>', views.booking_detail),
+    path('', views.room_list)
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
